@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crypto Prices</title>
+</head>
+<body>
+  <h1>Crypto Prices</h1>
+  <div id="cryptoList"></div><br>
+  <button onclick="location.href='/'">Go to home</button><br><br>
+  
+  <body>
+    <form action="/prices-page" method="post" onsubmit="fetchPrices(event)">
+        <p>Fill the token that you want to see:</p>
+        <label for="token">Token:</label>
+        <input type="text" name="token" id="token"><br><br>
+        <input type="submit" value="Submit" name="submit">
+    </form>
+
+    <div id="result"></div>
+
+    <script>
+      async function fetchPrices(event) {
+            event.preventDefault();
+
+            const token = document.getElementById('token').value;
+
+            try {
+                const response = await fetch('/prices-page', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ token }),
+                });
+
+                if (response.ok) {
+                  const result = await response.json();
+                  document.getElementById('result').innerText = `Token: ${result.token}\nPrice: ${result.tokenPrice}`;
+                } else {
+                    console.error('Failed to submit data. Status:', response.status);
+                    document.getElementById('result').innerText = "The token does not exist or spelled not corrected. >You filled in: " + token;
+                }
+            } catch (error) {
+                console.error('Error submitting data:', error.message);
+                document.getElementById('result').innerText = 'The token does not exist or spelled not corrected' + `<br>You filled in: ${result.token}`;
+            }
+        }
+    </script>
+  
+
+  <script>
+    async function fetchCryptoPrices() {
+      try {
+        const response = await fetch('/prices');
+        const data = await response.json();
+  
+        const { bitcoin, ethereum, aptos, cosmos, arbitrum} = data.prices;
+  
+        const pricesString = `Crypto Prices:<br>
+          👉 Bitcoin $${bitcoin}<br>
+          👉 Ethereum $${ethereum}<br>
+          👉 Aptos $${aptos}<br>
+          👉 Cosmos(Atom) $${cosmos}<br>
+          👉 Arbitrum $${arbitrum}`;
+  
+        const cryptoList = document.getElementById('cryptoList');
+        cryptoList.innerHTML = `<div>${pricesString}</div>`;
+      } catch (error) {
+        console.error('Error fetching cryptocurrency prices:', error.message);
+      }
+    }
+    fetchCryptoPrices();
+    setInterval(fetchCryptoPrices, 60000);
+  </script>
+
+
+</body>
+</html>
